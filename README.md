@@ -1,40 +1,33 @@
-To-Do List CLI Application
-==========================
+# 🔐 Secure Password Generator (Python)
 
-A simple command-line to-do list manager written in Python. This application allows you to add, view, mark as done, and delete tasks, with persistent storage using a JSON file.
+This is a command-line **secure password generator** built with Python. It uses the `secrets` module for cryptographically secure randomization—ideal for generating strong, unpredictable passwords for personal or professional use.
 
-Features
---------
-- Add new tasks
-- View all tasks with status (Done/Not Done)
-- Mark tasks as done
-- Delete tasks
-- Tasks are saved to and loaded from `tasks.json`
+## 🚀 Features
 
-How to Run
-----------
-1. Make sure you have Python 3 installed.
-2. Open a terminal or command prompt in this directory.
-3. Run the application:
-   
-   ```
-   python todoListCLI.py
-   ```
+- Customizable password length (minimum: 8 characters)
+- Option to include:
+  - Uppercase letters
+  - Lowercase letters
+  - Digits
+  - Symbols
+- Auto-copies the generated password to your clipboard
+- Option to generate multiple passwords in a loop
+- Clears the terminal for a cleaner UI
 
-Usage
------
-- Follow the on-screen menu to add, view, mark as done, or delete tasks.
-- Tasks are automatically saved when you quit the program.
+## 🛠️ Technologies Used
 
-File Descriptions
------------------
-- `todoListCLI.py` : Main Python script for the CLI application.
-- `tasks.json`     : Stores your tasks and their status (created automatically).
-- `README.txt`     : This file.
+- Python 3.x
+- `secrets` — secure random number generation
+- `string` — character sets
+- `pyperclip` — clipboard support
+- `os` and `time` — terminal and delay management
 
-Notes
------
-- If `tasks.json` does not exist, it will be created automatically.
-- Only integer choices between 1 and 5 are accepted in the menu.
+## 🧠 Why `secrets`?
 
-Enjoy managing your tasks!
+Unlike the `random` module, `secrets` is designed for **cryptographic security**. This means passwords generated using `secrets` are much harder to predict, keeping you safe from brute-force attacks or seed-guessing exploits.
+
+## 📦 Requirements
+
+Install the required Python library:
+```bash
+pip install pyperclip

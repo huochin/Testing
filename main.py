@@ -1,90 +1,121 @@
+import secrets
+import string
+import time 
+import pyperclip
 import os
-import json
 
-def showMenu():
-    print("""\nTo-do List:\n
-          1. Add Task\n
-          2. View All Task\n
-          3. Mark Task As Done\n
-          4. Delete Task\n
-          5. Quit Program\n""")
-    
-def addTask():
-    taskDesc = input("What\'s the task: ").strip()
-    tasks.append({'Task' : taskDesc, 'Done' : False})
-    print("Task added!")
-
-def viewTask():
-    if not tasks:
-        print("There's no tasks yet. Go add some task.")
-    else:
-        print("All task:")
-        for idx, t in enumerate(tasks, 1):
-            status = "Done" if t['Done'] else "Not Done"
-            print(f"{idx:>2}. {t['Task']:<20} [{status}]")
-
-def selectTask():
+def inputDetector(hint, limit):
     while True:
             try:
-                taskSelected = int(input("Select task number: "))
-                if taskSelected < 1 or taskSelected >= len(tasks) + 1:
-                    raise IndexError
-                return(taskSelected)
-            except:
-                print("Please choose a valid task number!")
+                user = int(input(f"{hint}{f"(0-{limit})" if limit == 1 else "(minimum 8)"}: "))
+                if limit == 0:
+                    if user < 8:
+                        raise IndexError
+                    else:
+                        return user
+                elif limit == 1:
+                    if user != 0 and user != 1:
+                        raise IndexError
+                    else:
+                        return user
+            except (ValueError, IndexError):
+                print(f"Try again!")
+    """
+    Handle user input for password settings.
 
-def markAsDone(taskNumber):
-    tasks[taskNumber-1].update({'Done' : True})
-    print(f"Task {taskNumber} is done.")
+    Args:
+        hint (str): Prompt text to display to the user.
+        limit (int): Input mode. 
+            - 0: Minimum password length (must be >= 8)
+            - 1: Boolean toggle (must be 0 or 1)
 
-def deleteTask(taskNumber):
-    tasks.pop(taskNumber-1)
-    print("Task deleted")
+    Returns:
+        int: Validated user input based on the mode.
+    """
+def getUserPreference():
+    while True:
+        try:
+            length = inputDetector("How long the password've to be", 0)
+            useUpper = inputDetector("Is uppercase required", 1)    
+            useLower = inputDetector("Is lowercase required", 1)
+            useDigits = inputDetector("Is digits required", 1)
+            useSymbols = inputDetector("Is symbols required", 1)
+            if useDigits == useLower == useSymbols == useUpper == 0:
+                raise ValueError
+            return length, useUpper, useLower, useDigits, useSymbols
+        except ValueError:
+            print("Password generate fail. Try Again.")
+    """
+    Collect user preferences for password generation.
 
-def saveTasks():
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file)
+    Prompts for:
+        - Length of the password (>=8)
+        - Whether to include uppercase, lowercase, digits, symbols
 
-def loadTasks():
-    global tasks    
-    if os.path.exists("tasks.json"):
-        with open("tasks.json", "r") as file:
-            tasks = json.load(file)
+    Returns:
+        tuple: (length, useUpper, useLower, useDigits, useSymbols)
 
-tasks = []
-loadTasks()
-isrunning = True
-choice = 0
+    Raises:
+        ValueError: If all character options are set to 0 (empty pool).
+    """
 
-while isrunning == True:
-    showMenu()
-    try:
-        choice = int(input("Enter your choice(1-5): "))
-        if choice < 1 or choice > 5:
-            raise IndexError
-    except:
-        print("Please put integer 1 to 5")
-        continue #skip to next loop to prevent using the old 'choice'
-    match choice:
-        case 1:
-            addTask()
-        case 2:
-            viewTask()
-        case 3:
-            viewTask()
-            if not tasks:
-                pass
+def generatePassword(length, upper, lower, digits, symbols):
+    wordPool = ''
+    if upper:
+        wordPool += string.ascii_uppercase
+    if lower:
+        wordPool += string.ascii_lowercase
+    if digits:
+        wordPool += string.digits
+    if symbols:
+        wordPool += string.punctuation
+    if not wordPool:
+        print("Password generate fail")
+        return None
+    return ''.join(secrets.choice(wordPool) for _ in range(length))
+    """
+    Generate a secure random password based on user preferences.
+
+    Args:
+        length (int): Desired length of the password.
+        upper (int): Include uppercase letters (1 or 0).
+        lower (int): Include lowercase letters (1 or 0).
+        digits (int): Include digits (1 or 0).
+        symbols (int): Include special characters (1 or 0).
+
+    Returns:
+        str: Generated password or None if no valid character set.
+    """
+
+def main():
+    while True:
+        preference = getUserPreference()
+        if preference:
+            password = generatePassword(*preference)
+            os.system('cls')
+            print("Your password is", password)
+            pyperclip.copy(password)
+            time.sleep(0.5)
+            print("Password copied to clipboard.")
+            again = input("Generate another password(y/n)").lower()
+            if again == 'y':
+                continue
+            elif again == 'n':
+                print("Bye..")
+                time.sleep(3)
+                break
             else:
-                taskSelected = selectTask()
-                markAsDone(taskSelected)
-        case 4:
-            viewTask()
-            if not tasks:
-                pass
-            else:
-                taskSelected = selectTask()
-                deleteTask(taskSelected)
-        case 5:
-            print("Thank you")
-            saveTasks()
-            isrunning = False
+                print("Idc anyway bye")
+                time.sleep(1)
+                break
+    """
+    Main loop for the password generator program.
+
+    - Gets user preferences
+    - Generates and displays a password
+    - Copies the password to clipboard
+    - Asks if user wants to generate another
+    """
+
+if __name__ == "__main__":
+    main()
